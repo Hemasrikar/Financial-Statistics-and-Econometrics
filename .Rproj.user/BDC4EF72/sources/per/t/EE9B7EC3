@@ -1,0 +1,33 @@
+{
+    "id": "EE9B7EC3",
+    "path": "~/Documents/WBS/ST959/Project/Project.Rmd",
+    "project_path": "Project.Rmd",
+    "type": "r_markdown",
+    "hash": "2195623746",
+    "contents": "",
+    "dirty": false,
+    "created": 1765293189589.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "rmdVisualMode": "true",
+        "rmdVisualWrapConfigured": "true",
+        "docOutlineVisible": "1",
+        "rmdVisualCollapsedChunks": "",
+        "rmdVisualModeLocation": "491:2",
+        "cursorPosition": "17,0",
+        "scrollLine": "6",
+        "ignored_words": "Ljung\n",
+        "docOutlineSize": "203"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1765373940,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1765373940455,
+    "read_only": false,
+    "read_only_alternatives": []
+}
