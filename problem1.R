@@ -198,7 +198,7 @@ VaR_hist/St ## VaR in percentage
 
 ### -------------------------- Monte Carlo Simulation ----------------------------
 
-alpha <- 0.999 # confidence level
+alpha <- 0.95 # confidence level
 N <- 100000
 set.seed(24)   # for reproducibility
 St <- as.numeric(tail(prices$'A', 1)) # Current portfolio value
