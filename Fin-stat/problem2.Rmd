@@ -1,0 +1,444 @@
+---
+title: "Problem2"
+author: "Srikar"
+date: "`r Sys.Date()`"
+output: html_document
+runtime: shiny
+---
+
+### Clear all Outputs and Terminal of R Studio
+
+```{r}
+## This for safety and to avoid variables conflict
+rm(list = ls())
+graphics.off()
+cat("\014")
+```
+
+### Installing Packages Required
+
+```{r message=FALSE, warning=FALSE}
+
+options (repos = "https://cran.rstudio.com")
+packages <- c ("ggplot2","readxl","plotly","stargazer", "regclass","leaps", "car")
+installed_packages <- packages %in% rownames(installed.packages())
+
+# Install packages, if not yet installed
+if (any(installed_packages == FALSE)) {
+install.packages ( packages [!installed_packages])
+}
+
+invisible (lapply(packages,library,character.only = TRUE))   # Package Loading
+```
+
+### Loading Data
+
+```{r}
+getwd()
+obs <- read_excel("Problem2set2.xlsx")
+```
+
+```{r}
+### Number of Columns
+ncol(obs)
+### Number of rows
+n_obs=nrow(obs)
+```
+
+```{r}
+head(obs)
+Y_obs <- obs[, 1]$'Yvariable'
+factors <- obs[, 2:6]
+
+FactorA <- factors[, 1]$'FactorA'
+FactorB <- factors[, 2]$'FactorB'
+FactorC <- factors[, 3]$'FactorC'
+FactorD <- factors[, 4]$'FactorD'
+FactorE <- factors[, 5]$'FactorE'
+```
+
+### Shapiro-Wilk Normality Test
+
+```{r}
+tests <- list(
+  "Factor A" = shapiro.test(FactorA),
+  "Factor B" = shapiro.test(FactorB),
+  "Factor C" = shapiro.test(FactorC),
+  "Factor D" = shapiro.test(FactorD),
+  "Factor E" = shapiro.test(FactorE)
+)
+
+tests
+```
+
+### Kolmogorov-Smirnov
+
+```{r}
+## Test for Normal Distribution
+ks.test(FactorA,pnorm,mean=mean(FactorA),sd=sd(FactorA))
+ks.test(FactorB,pnorm,mean=mean(FactorB),sd=sd(FactorB))
+ks.test(FactorC,pnorm,mean=mean(FactorC),sd=sd(FactorC))
+ks.test(FactorD,pnorm,mean=mean(FactorD),sd=sd(FactorD))
+ks.test(FactorE,pnorm,mean=mean(FactorE),sd=sd(FactorE))
+
+```
+
+### Histogram Plots
+
+Bins are choosed based on Freedman–Diaconis (FD) rule, for robustness towards to outliners
+
+```{r}
+fig <- plot_ly(alpha = 0.6)
+# fig <- fig %>% add_histogram(x = FactorA,marker = list(line = list(color = "red", width = 1)))
+fig <- fig %>% add_histogram(x = FactorA, name = 'Factor A')
+fig <- fig %>% add_histogram(x = FactorB, name = 'Factor B')
+fig <- fig %>% add_histogram(x = FactorC, name = 'Factor C')
+fig <- fig %>% add_histogram(x = FactorD, name = 'Factor D')
+fig <- fig %>% add_histogram(x = FactorE, name = 'Factor E')
+fig <- fig %>% layout(barmode = "overlay")
+
+fig
+```
+
+```{r}
+hist(FactorA,
+     probability = TRUE,
+     breaks = "FD",
+     main = "Factor A",
+     xlab = "Value")
+
+lines(density(FactorA), lwd = 2)
+
+x <- seq(min(FactorA), max(FactorA), length.out = 200)
+lines(x,
+      dnorm(x, mean(FactorA), sd(FactorA)),
+      col = "red",
+      lwd = 2)
+
+legend("topright",
+       legend = c("Kernel Density Estimate", "Normal Fit"),
+       lwd = c(2, 2),
+       col = c("black", "red"),
+       bty = "n")
+```
+
+```{r}
+hist(FactorB,
+     probability = TRUE,
+     breaks = "FD",
+     main = "Factor B",
+     xlab = "Value")
+
+lines(density(FactorB), lwd = 2)
+
+x <- seq(min(FactorB), max(FactorB), length.out = 200)
+lines(x,
+      dnorm(x, mean(FactorB), sd(FactorB)),
+      col = "orange",
+      lwd = 2)
+
+legend("topright",
+       legend = c("Kernel Density Estimate", "Normal Fit"),
+       lwd = c(2, 2),
+       col = c("black", "orange"),
+       bty = "n")
+```
+
+```{r}
+hist(FactorC,
+     probability = TRUE,
+     breaks = "FD",
+     main = "Factor C",
+     xlab = "Value")
+
+lines(density(FactorC), lwd = 2)
+
+x <- seq(min(FactorC), max(FactorC), length.out = 200)
+lines(x,
+      dnorm(x, mean(FactorC), sd(FactorC)),
+      col = "forestgreen",
+      lwd = 2)
+
+legend("topright",
+       legend = c("Kernel Density Estimate", "Normal Fit"),
+       lwd = c(2, 2),
+       col = c("black", "forestgreen"),
+       bty = "n")
+```
+
+```{r}
+hist(FactorD,
+     probability = TRUE,
+     breaks = "FD",
+     main = "Factor D",
+     xlab = "Value")
+
+lines(density(FactorD), lwd = 2)
+
+x <- seq(min(FactorD), max(FactorD), length.out = 200)
+lines(x,
+      dnorm(x, mean(FactorD), sd(FactorD)),
+      col = "blue",
+      lwd = 2)
+
+legend("topright",
+       legend = c("Kernel Density Estimate", "Normal Fit"),
+       lwd = c(2, 2),
+       col = c("black", "blue"),
+       bty = "n")
+```
+
+```{r}
+hist(FactorE,
+     probability = TRUE,
+     breaks = "FD",
+     main = "Factor E",
+     xlab = "Value")
+
+lines(density(FactorE), lwd = 2)
+
+x <- seq(min(FactorE), max(FactorE), length.out = 200)
+lines(x,
+      dnorm(x, mean(FactorE), sd(FactorE)),
+      col = "purple",
+      lwd = 2)
+
+legend("topright",
+       legend = c("Kernel Density Estimate", "Normal Fit"),
+       lwd = c(2, 2),
+       col = c("black", "purple"),
+       bty = "n")
+```
+
+### Quantile-Quantile Plots
+
+```{r}
+qq_plot <- ggplot() +
+  stat_qq(aes(sample = FactorA, color = "FactorA")) +
+  stat_qq(aes(sample = FactorB, color = "FactorB")) +
+  stat_qq(aes(sample = FactorC, color = "FactorC")) +
+  stat_qq(aes(sample = FactorD, color = "FactorD")) +
+  stat_qq(aes(sample = FactorE, color = "FactorE")) +
+  stat_qq_line(aes(sample = FactorA, color = "FactorA")) +
+  stat_qq_line(aes(sample = FactorB, color = "FactorB")) +
+  stat_qq_line(aes(sample = FactorC, color = "FactorC")) +
+  stat_qq_line(aes(sample = FactorD, color = "FactorD")) +
+  stat_qq_line(aes(sample = FactorE, color = "FactorE")) +
+  labs(
+    x = "Theoretical Quantiles",
+    y = "Sample Quantiles",
+    color = "Factor",
+    title = "Q-Q Plot of Factors"
+  ) +
+  scale_x_continuous(n.breaks = 10) +
+  scale_y_continuous(n.breaks = 10) +
+  theme_light()
+
+qq_plot
+```
+
+```{r}
+qqplotA <- ggplot(data.frame(FactorA), aes(sample = FactorA)) +
+  stat_qq() +
+  stat_qq_line(color = "red", linewidth = 1) +
+  labs(
+    x = "Theoretical Quantiles",
+    y = "Sample Quantiles",
+    title = "Factor A"
+  ) +
+  scale_x_continuous(n.breaks = 10) +
+  scale_y_continuous(n.breaks = 10) +
+  theme_light()
+
+qqplotA
+```
+
+```{r}
+qqplotB <- ggplot(data.frame(FactorB), aes(sample = FactorB)) +
+  stat_qq() +
+  stat_qq_line(color = "orange", linewidth = 1) +
+  labs(
+    x = "Theoretical Quantiles",
+    y = "Sample Quantiles",
+    title = "Factor B"
+  ) +
+  scale_x_continuous(n.breaks = 10) +
+  scale_y_continuous(n.breaks = 10) +
+  theme_light()
+
+qqplotB
+```
+
+```{r}
+qqplotC <- ggplot(data.frame(FactorC), aes(sample = FactorC)) +
+  stat_qq() +
+  stat_qq_line(color = "forestgreen", linewidth = 1) +
+  labs(
+    x = "Theoretical Quantiles",
+    y = "Sample Quantiles",
+    title = "Factor C"
+  ) +
+  scale_x_continuous(n.breaks = 10) +
+  scale_y_continuous(n.breaks = 10) +
+  theme_light()
+
+qqplotC
+```
+
+```{r}
+qqplotD <- ggplot(data.frame(FactorD), aes(sample = FactorD)) +
+  stat_qq() +
+  stat_qq_line(color = "blue", linewidth = 1) +
+  labs(
+    x = "Theoretical Quantiles",
+    y = "Sample Quantiles",
+    title = "Factor D"
+  ) +
+  scale_x_continuous(n.breaks = 10) +
+  scale_y_continuous(n.breaks = 10) +
+  theme_light()
+
+qqplotD
+```
+
+```{r}
+qqplotE <- ggplot(data.frame(FactorE), aes(sample = FactorE)) +
+  stat_qq() +
+  stat_qq_line(color = "purple", linewidth = 1) +
+  labs(
+    x = "Theoretical Quantiles",
+    y = "Sample Quantiles",
+    title = "Factor E"
+  ) +
+  scale_x_continuous(n.breaks = 10) +
+  scale_y_continuous(n.breaks = 10) +
+  theme_light()
+
+qqplotE
+```
+
+### Simple Linear Regression Models
+
+```{r}
+# Simple Linear Regression For Factor A
+regA <- lm(Y_obs~FactorA)
+summary(regA)
+```
+
+```{r}
+# Simple Linear Regression For Factor B
+regB <- lm(Y_obs~FactorB)
+summary(regB)
+```
+
+```{r}
+# Simple Linear Regression For Factor C
+regC <- lm(Y_obs~FactorC)
+summary(regC)
+```
+
+```{r}
+# Simple Linear Regression For Factor D
+regD <- lm(Y_obs~FactorD)
+summary(regD)
+```
+
+```{r}
+# Simple Linear Regression For Factor E
+regE <- lm(Y_obs~FactorE)
+summary(regE)
+```
+
+#### Summary to LaTeX table
+
+Using stargazer package, we are getting the simple regression model summary as LaTeX table in the output. **Un-comment** and Change the parameter regA for different factors.
+
+```{r}
+## Regression summary to LaTeX table
+stargazer(
+  regE,
+  type = "latex",
+  title = "Regression Results on Factor E",
+  label = "tab:regE_summ",
+  single.row = TRUE,
+  dep.var.labels = "Yvariable",
+  covariate.labels = c("Factor E")
+)
+```
+
+### Multi-Linear Regression Model
+
+```{r}
+multireg <- lm(Y_obs~FactorA+FactorB+FactorC+FactorD+FactorE)
+summary(multireg)
+anova(multireg)
+```
+
+```{r}
+# stargazer(multireg, type = "latex",
+#           title = "Multi Regression Results",
+#           label = "tab:multireg_summ",
+#           single.row = TRUE)
+```
+
+### Multi-Collinearity Test on Factors
+
+```{r}
+vif(multireg)
+```
+
+### Bayes Information Criterion
+
+```{r}
+BIC(multireg)
+```
+
+Choosing the best model using, step function, a stepwise model selection for regression models. criteria="AIC" for Akaike Information Criterion. direction= "both" meaning allowing both addition and removal of factors based on the goodness of model
+
+```{r}
+best_model <- step(multireg, direction="both", k=log(n_obs))
+summary(best_model)
+BIC(best_model)
+```
+
+```{r}
+stargazer(best_model, type = "latex",
+          title = "Multi Regression Results of Best Model",
+          label = "tab:bestmodel_summ",
+          single.row = TRUE)
+```
+
+### Best Model based on Adjusted R\^2- Squared
+
+```{r}
+regfit <- regsubsets(
+  Y_obs ~ FactorA + FactorB + FactorC + FactorD + FactorE, data=obs,
+  nvmax = n_obs
+)
+summary(regfit)
+```
+
+```{r}
+adjr2_plot <- plot(regfit, scale="adjr2", col=gray(seq(0, 0.9, length = 10)))
+title(main="Adjusted R²", font.main=2)
+BIC_plot <- plot(regfit, scale="bic")
+title(main="BIC", font.main=2)
+```
+
+### Prediction using the Multi-Linear Regression Model
+
+```{r}
+# Creating a data frame of new factors and calling the column "new_factors".
+###This naming of the column is important whenn using predict afterwards. 
+new_factors <- data.frame(
+  FactorA = 34,
+  FactorB = 76,
+  FactorC = -25,
+  FactorD = -55,
+  FactorE = 42
+)
+
+# Predicting the new value of the Yvaribale
+new_Y_obs <-predict(best_model,newdata=new_factors)
+new_Y_obs
+```
