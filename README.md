@@ -32,3 +32,5 @@ Place `Data_FE.xlsx` in a `data/` folder. Required sheets:
 ```bash
 pip install pandas numpy matplotlib seaborn statsmodels
 ```
+---
+The Final report can be found [here](/report.pdf)
